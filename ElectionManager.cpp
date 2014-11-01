@@ -10,19 +10,24 @@
 #include <malloc.h>
 #include <stdlib.h>
 
-char* const CONSTITUENCY_LIST = "Constituency.dat";
-char* const CANDIDATE_LIST = "Candidates.dat";
-char* const USERS_LIST = "Users.dat";
-char* const TEMP = "temp.dat";
+#define CONSTITUENCY_LIST  "Constituency.dat"
+#define CANDIDATE_LIST  "Candidates.dat"
+#define USERS_LIST  "Users.dat"
+#define TEMP  "temp.dat"
+
+using namespace std;
 
 ElectionManager::ElectionManager(){
     std::fstream f;
     f.open(CONSTITUENCY_LIST,std::ios::in|std::ios::binary);
     int i = 0;
-    Constituency c;
-    while(f.read((char*)&c,sizeof(Constituency)))
-        strcpy(cons[i++].cn,c.cn);
-    constituancyCount = i;
+    Constituency* constituancy;
+    constituancyCount=0;
+    while(f.read((char*)(constituancy= (Constituency*) malloc(sizeof(Constituency))), sizeof(Constituency))){
+        this->constituancies = (Constituency**) realloc(this->constituancies, ++this->constituancyCount * sizeof(Constituency*));
+        this->constituancies[constituancyCount - 1] = constituancy;
+    }
+    free(constituancy);
     f.close();
 
     f.open(USERS_LIST,std::ios::in|std::ios::binary);
@@ -50,25 +55,8 @@ ElectionManager::ElectionManager(){
 
 void ElectionManager::createCandidate(){
     candidates = (Candidate **) realloc(candidates, (candidateCount + 1) * sizeof(Candidate*));
-
     char id[20], address[100],age[5];
     int consSelection,constituancy;
-
-//    while(1){
-//        std::cout<<"Id:\t\t\t\t\t(max. 20 characters\n\t\t";
-//        std::cin>>id;
-//        std::cout<<"Password:\t\t\t\t\t\t(min. 6 char, max 20)\n\t\t";
-//        std::cin>>pass;
-//        std::cout<<"Re-enter password\t\t\t\t\n";
-//        std::cin>>confirm;
-//        if(strcmp(confirm,pass)!=0)
-//        {
-//            std::cout<<"Re-enter password\n";
-//            continue;
-//        }
-//        break;
-//    }
-   // gets(address);//flush input stream
     std::cout<<"Address:";
     gets(address);
     std::cout<<"Age:";
@@ -83,8 +71,7 @@ void ElectionManager::createCandidate(){
         }
         break;
     }while(1);
-
-    candidates[candidateCount] = new Candidate(id, pass,this->cons[consSelection-1].cn,address,atoi(age));
+    candidates[candidateCount] = new Candidate(id, this->constituancies[consSelection-1]->cn,address,atoi(age));
     candidateCount++;
     std::ofstream fout(CANDIDATE_LIST,std::ios::binary|std::ios::app);
     fout.write((char*)candidates[candidateCount-1],sizeof(Candidate));
@@ -134,14 +121,14 @@ void ElectionManager::createUser(bool isFirstUser = false)
 }
 
 void ElectionManager::deleteConstituancy(){ 
-    char cn[20],ch;
-    int i,j,flag=0;
-    Constituency constituency;
+    char ch;
+    int i,j;
     std::cout<<"Enter the name of the constituency to be deleted\n";
     for(i=0;i<getConstituancyCount();i++)
-       cout<<i+1<<". "<<users[i]<<endl;
+       cout<<i+1<<". "<<constituancies[i]->cn<<endl;
     int p;
     cin>>p;
+    --p;
     //clrscr();
     //gotoxy(25,12);
     std::cout<<"WARNING! Deleting a constituency will automatically";
@@ -150,14 +137,15 @@ void ElectionManager::deleteConstituancy(){
     //gotoxy(25,14);
     std::cout<<"Do you wish to proceed?(Y/N)"<<std::endl;
     ch=_getch();
-    if(ch!='y'||ch!='Y')
+
+    if(ch!='y'&&ch!='Y')
     {
         return;
     }
     int candidatesRemoved=0;
     while(i<candidateCount)
     {
-        if(strcmp(candidates[i]->getConstituencyName(),users[p])==0)
+        if(strcmp(candidates[i]->getConstituencyName(),candidates[p]->getConstituencyName())==0)
         {
             free(candidates[i]);
            candidatesRemoved--;
@@ -175,35 +163,34 @@ void ElectionManager::deleteConstituancy(){
     i=0;
     while(i<candidateCount)
     {
-        fout.wrtie((char*)candidates[i],sizeof(Candidate));
+        fout.write((char*)candidates[i],sizeof(Candidate));
     }
     fout.close();
     while(i<getConstituancyCount())
     {
         if(i==p)
         {
-            free(users[i]);
+            free(constituancies[i]);
         }
         else if(i>p)
         {
-            users[i-1]=users[i];
+            constituancies[i-1]=constituancies[i];
         }
         i++;
      }
-    --userCount;
-    users=realloc(users,userCount*(sizeof(User*)));
+    --constituancyCount;
+    users=(User**)realloc(users,userCount*sizeof(User*));
     fout.open(CONSTITUENCY_LIST,std::ios::binary|std::ios::out);
     i=0;
     while(i<constituancyCount)
     {
-        fout.wrtie((char*)users[i],sizeof(User));
+        fout.write((char*)users[i],sizeof(User));
     }
     fout.close();
 
 
 
     }
-}
 
 void ElectionManager::createConstituancy(){
     int numToAdd = 0;
@@ -217,10 +204,12 @@ void ElectionManager::createConstituancy(){
         std::cout<<"Enter name of constituency #"<<constituancyCount+1;
         //z++;
         std::cin>>cName;
-        strcpy(cons[constituancyCount].cn, cName);
+        constituancies = (Constituency**)realloc(constituancies,(constituancyCount + 1)*sizeof(Constituency*));
+        constituancies[constituancyCount] = (Constituency*) malloc(sizeof(Constituency));
+        strcpy(constituancies[constituancyCount]->cn, cName);
         std::ofstream fout;
         fout.open(CONSTITUENCY_LIST,std::ios::binary|std::ios::app);
-        fout.write((char*)&cons[constituancyCount],sizeof(Constituency));
+        fout.write((char*)constituancies[constituancyCount],sizeof(Constituency));
         fout.close();
         strset(tmp, 0);
         strcat(tmp, "CL_");
@@ -260,7 +249,7 @@ int ElectionManager::loginPrompt()
 void ElectionManager::listConstituancy()
 {
     for(int i=0;i<constituancyCount;i++){
-        std::cout<<i+1<<". "<<this->cons[i].cn<<std::endl;
+        std::cout<<i+1<<". "<<this->constituancies[i]->cn<<std::endl;
     }
 }
 

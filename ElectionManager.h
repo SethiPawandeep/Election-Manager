@@ -10,7 +10,7 @@ class ElectionManager{
         int constituancyCount;
         int userCount;
         int candidateCount;
-        Constituency cons[20];
+        Constituency** constituancies;
         User** users = 0;
         Candidate** candidates = 0;
         User* loggedIn;

@@ -3,16 +3,20 @@
 
 #include "User.h"
 
-class Candidate:public User
+class Candidate
 {
     private:
-        char constituency[20],address[100];//constituency name, name,address of candi.
+        char constituency[20],address[100],id[50];//constituency name, name,address of candi.
         int age;	//age of candidate
     public:
-        Candidate(char*, char*, char*, char*, int);
-        char* getConstituencyName()
+        Candidate(char*, char*, char*, int);
+        inline char* getConstituencyName()
         {
             return constituency;
+        }
+        inline char* getId()
+        {
+            return id;
         }
 };
 
