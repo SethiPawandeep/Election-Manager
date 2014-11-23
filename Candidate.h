@@ -18,6 +18,14 @@ class Candidate
         {
             return id;
         }
+        inline char* getAddress()
+        {
+            return address;
+        }
+        inline int getAge()
+        {
+            return age;
+        }
 };
 
 #endif // CANDIDATE_H

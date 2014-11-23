@@ -8,6 +8,7 @@
 #include <fstream>
 #include <iostream>
 #include <malloc.h>
+#include <stdio.h>
 #include <stdlib.h>
 
 #define CONSTITUENCY_LIST  "Constituency.dat"
@@ -34,7 +35,7 @@ ElectionManager::ElectionManager(){
     i = 0;
     User* user;
     userCount = 0;
-    while(f.read((char*)(user = (User*) malloc(sizeof(User))), sizeof(User))){
+    while(f.read((char*)(user = (User*) malloc(sizeof(User))), sizeof(User))){      //doubt
         this->users = (User**) realloc(this->users, ++this->userCount * sizeof(User*));
         this->users[userCount - 1] = user;
     }
@@ -57,14 +58,19 @@ void ElectionManager::createCandidate(){
     candidates = (Candidate **) realloc(candidates, (candidateCount + 1) * sizeof(Candidate*));
     char id[20], address[100],age[5];
     int consSelection,constituancy;
+    system("cls");
+    cout<<"\n\nEnter Details\n";
+    cout<<"Name: ";
+    cin>>id;
     std::cout<<"Address:";
-    gets(address);
+    gets(address);//flush input stream
+    cin.getline(address, 100);
     std::cout<<"Age:";
-    gets(age);
+    cin>>age;
     do{
         std::cout<<"Select Constituancy:\n";
         listConstituancy();
-        cin>>constituancy;
+        cin>>consSelection;
         if(consSelection < 0 || consSelection >= constituancyCount){
             std::cout<<"Invalid Constituancy Selected\n";
             continue;
@@ -123,7 +129,7 @@ void ElectionManager::createUser(bool isFirstUser = false)
 void ElectionManager::deleteConstituancy(){ 
     char ch;
     int i,j;
-    std::cout<<"Enter the name of the constituency to be deleted\n";
+    std::cout<<"Select the constituency to be deleted\n";
     for(i=0;i<getConstituancyCount();i++)
        cout<<i+1<<". "<<constituancies[i]->cn<<endl;
     int p;
@@ -164,6 +170,7 @@ void ElectionManager::deleteConstituancy(){
     while(i<candidateCount)
     {
         fout.write((char*)candidates[i],sizeof(Candidate));
+        i++;
     }
     fout.close();
     while(i<getConstituancyCount())
@@ -179,18 +186,15 @@ void ElectionManager::deleteConstituancy(){
         i++;
      }
     --constituancyCount;
-    users=(User**)realloc(users,userCount*sizeof(User*));
     fout.open(CONSTITUENCY_LIST,std::ios::binary|std::ios::out);
     i=0;
-    while(i<constituancyCount)
+    while(i<getConstituancyCount())
     {
-        fout.write((char*)users[i],sizeof(User));
+        fout.write((char*)constituancies[i],sizeof(Constituency));
+        i++;
     }
     fout.close();
-
-
-
-    }
+}
 
 void ElectionManager::createConstituancy(){
     int numToAdd = 0;
@@ -199,12 +203,19 @@ void ElectionManager::createConstituancy(){
     numToAdd+=constituancyCount;
     char cName[20];
     char tmp[25];
+
     for(constituancyCount;constituancyCount<numToAdd;constituancyCount++)
     {
         std::cout<<"Enter name of constituency #"<<constituancyCount+1;
         //z++;
         std::cin>>cName;
-        constituancies = (Constituency**)realloc(constituancies,(constituancyCount + 1)*sizeof(Constituency*));
+        Constituency** tempCons = new Constituency*[constituancyCount + 1];
+        for(int i = 0; i < constituancyCount; ++i){
+            tempCons[i] = constituancies[i];
+        }
+        if(constituancies != 0) delete[] constituancies;
+        constituancies = tempCons;
+        //constituancies = (Constituency**)realloc(constituancies,(constituancyCount + 1)*sizeof(Constituency*));
         constituancies[constituancyCount] = (Constituency*) malloc(sizeof(Constituency));
         strcpy(constituancies[constituancyCount]->cn, cName);
         std::ofstream fout;
@@ -309,7 +320,7 @@ void ElectionManager::showMenu(){
         }
         if(k==2)
         {
-            if(ch=='a'||ch=='A') createCandidate();
+            if(ch=='a'||ch=='A') createCandidate();//Done
             //if(ch=='b'||ch=='B') edit();
             if(ch=='c'||ch=='C') {
                 listCandidates();
@@ -380,6 +391,24 @@ void ElectionManager::showMenu(){
 
 void ElectionManager::listCandidates(){
     for(int i = 0; i<candidateCount;i++){
-        std::cout<<i+1<<". "<<candidates[i]->getId()<<std::endl;
+        std::cout<<i+1<<". "<<candidates[i]->getId()<<endl;
+    }
+    int choice;
+
+    while(1)
+    {  cout<<"Enter your choice to view the candidate or enter 0 to return to the main menu.\n";
+             cin>>choice;
+        if(choice<0||choice>candidateCount+1)
+        {  cout<<"Invalid selection. Re-enter.\n";
+                 continue;
+        }
+        if(choice==0)
+        {
+            break;
+        }
+        cout<<"Name:\t"<<candidates[choice-1]->getId()<<endl;
+        cout<<"Age:\t"<<candidates[choice-1]->getAge()<<endl;
+        cout<<"Address:\t"<<candidates[choice-1]->getAddress()<<endl;
+        cout<<"Constituency:\t"<<candidates[choice-1]->getAge()<<endl;
     }
 }

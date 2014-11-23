@@ -11,7 +11,8 @@ class User
         char getIsAdmin(){
             return isAdmin;
         }
-        char* const getId(){
+        char* const getId()
+        {
             return id;
         }
 
