@@ -26,8 +26,9 @@ class ElectionManager{
         void showMenu();
         void createUser(bool);
         void createCandidate();
+        void editCandidate();
         void createConstituancy();
-        void deleteCandidacy();  //to delete candi.
+        void deleteCandidate();  //to delete candi.
         void deleteConstituancy();//to del consti.
         void listCandidates();
         void listConstituancy();

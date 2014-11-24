@@ -71,7 +71,7 @@ void ElectionManager::createCandidate(){
         std::cout<<"Select Constituancy:\n";
         listConstituancy();
         cin>>consSelection;
-        if(consSelection < 0 || consSelection >= constituancyCount){
+        if(consSelection < 0 || consSelection > constituancyCount){
             std::cout<<"Invalid Constituancy Selected\n";
             continue;
         }
@@ -82,6 +82,34 @@ void ElectionManager::createCandidate(){
     std::ofstream fout(CANDIDATE_LIST,std::ios::binary|std::ios::app);
     fout.write((char*)candidates[candidateCount-1],sizeof(Candidate));
     fout.close();
+}
+
+void ElectionManager::deleteCandidate()
+{   int i;
+    Candidate* lastCandidate=candidates[candidateCount];
+    for(i = 0; i<candidateCount;i++){
+        std::cout<<i+1<<". "<<candidates[i]->getId()<<endl;
+    }
+    cout<<"Select the candidate to be deleted\n";
+    int choice;
+    cin>>choice;
+    i=choice-1;
+    while(i<candidateCount)
+    {
+        candidates[i]=candidates[i+1];
+        i++;
+    }
+    free(lastCandidate);
+    candidateCount--;
+    fstream f;
+    f.open(CANDIDATE_LIST,ios::out|ios::binary);
+    i=0;
+    while(i<candidateCount)
+    {
+        f.write((char*)candidates[i],sizeof(Candidate));
+        i++;
+    }
+    f.close();
 }
 
 void ElectionManager::createUser(bool isFirstUser = false)
@@ -126,7 +154,7 @@ void ElectionManager::createUser(bool isFirstUser = false)
     fout.close();
 }
 
-void ElectionManager::deleteConstituancy(){ 
+void ElectionManager::deleteConstituancy(){
     char ch;
     int i,j;
     std::cout<<"Select the constituency to be deleted\n";
@@ -135,12 +163,7 @@ void ElectionManager::deleteConstituancy(){
     int p;
     cin>>p;
     --p;
-    //clrscr();
-    //gotoxy(25,12);
-    std::cout<<"WARNING! Deleting a constituency will automatically";
-    //gotoxy(25,13);
-    std::cout<<" delete the candidates associated with it."<<std::endl;
-    //gotoxy(25,14);
+    std::cout<<"WARNING! Deleting a constituency will automatically delete the candidates associated with it."<<std::endl;
     std::cout<<"Do you wish to proceed?(Y/N)"<<std::endl;
     ch=_getch();
 
@@ -148,44 +171,51 @@ void ElectionManager::deleteConstituancy(){
     {
         return;
     }
+    i=0;
     int candidatesRemoved=0;
     while(i<candidateCount)
     {
-        if(strcmp(candidates[i]->getConstituencyName(),candidates[p]->getConstituencyName())==0)
+        if(strcmp(candidates[i]->getConstituencyName(),constituancies[p]->cn)==0)
         {
             free(candidates[i]);
-           candidatesRemoved--;
-        }
-        j=i+1;
-        for(j;j<candidateCount;j++)
-        {
-            candidates[j-1]=candidates[j];
+            candidatesRemoved--;
+            j=i;
+            for(j;j<candidateCount-1;j++)
+            {
+                candidates[j]=candidates[j+1];
+            }
         }
         i++;
     }
-    candidateCount-=candidatesRemoved;
-
+    candidateCount+=candidatesRemoved;
+    candidates = (Candidate**) realloc(candidates, candidateCount * sizeof(Candidate*));
     std::ofstream fout(CANDIDATE_LIST,std::ios::binary|std::ios::out);
     i=0;
+    char tmp[10];
+    strset(tmp,0);
+    strcat(tmp, "CL_");
+    remove(strcat(tmp,constituancies[p]->cn));
+    strset(tmp, 0);
+    strcat(tmp, "VL_");
+    remove(strcat(tmp,constituancies[p]->cn));
     while(i<candidateCount)
     {
         fout.write((char*)candidates[i],sizeof(Candidate));
         i++;
     }
     fout.close();
+    i=0;
     while(i<getConstituancyCount())
     {
-        if(i==p)
-        {
-            free(constituancies[i]);
-        }
-        else if(i>p)
+        if(i>p)
         {
             constituancies[i-1]=constituancies[i];
         }
         i++;
      }
+    free(constituancies[constituancyCount]);
     --constituancyCount;
+    constituancies=(Constituency**) realloc(constituancies,constituancyCount*sizeof(Constituency));
     fout.open(CONSTITUENCY_LIST,std::ios::binary|std::ios::out);
     i=0;
     while(i<getConstituancyCount())
@@ -207,7 +237,6 @@ void ElectionManager::createConstituancy(){
     for(constituancyCount;constituancyCount<numToAdd;constituancyCount++)
     {
         std::cout<<"Enter name of constituency #"<<constituancyCount+1;
-        //z++;
         std::cin>>cName;
         Constituency** tempCons = new Constituency*[constituancyCount + 1];
         for(int i = 0; i < constituancyCount; ++i){
@@ -215,7 +244,7 @@ void ElectionManager::createConstituancy(){
         }
         if(constituancies != 0) delete[] constituancies;
         constituancies = tempCons;
-        //constituancies = (Constituency**)realloc(constituancies,(constituancyCount + 1)*sizeof(Constituency*));
+  //      constituancies = (Constituency**)realloc(constituancies,(constituancyCount + 1)*sizeof(Constituency*));
         constituancies[constituancyCount] = (Constituency*) malloc(sizeof(Constituency));
         strcpy(constituancies[constituancyCount]->cn, cName);
         std::ofstream fout;
@@ -280,9 +309,8 @@ void ElectionManager::showMenu(){
         if(k==2)
         {
             std::cout<<"\ta. Add\n";
-            std::cout<<"\tb. Edit\n";
-            std::cout<<"\tc. View\n";
-            std::cout<<"\td. Delete\n";
+            std::cout<<"\tb. View\n";
+            std::cout<<"\tc. Delete\n";
         }
         std::cout<<"3. Voter list\n";
         if(k==3)
@@ -321,12 +349,11 @@ void ElectionManager::showMenu(){
         if(k==2)
         {
             if(ch=='a'||ch=='A') createCandidate();//Done
-            //if(ch=='b'||ch=='B') edit();
-            if(ch=='c'||ch=='C') {
-                listCandidates();
+            if(ch=='b'||ch=='B') {
+                listCandidates();//Done
                 _getch();
             }
-            //if(ch=='d'||ch=='D') deleteCandidacy();
+            if(ch=='C'||ch=='c') deleteCandidate();
         }
         //        if(k==3)
         //        {
@@ -398,7 +425,7 @@ void ElectionManager::listCandidates(){
     while(1)
     {  cout<<"Enter your choice to view the candidate or enter 0 to return to the main menu.\n";
              cin>>choice;
-        if(choice<0||choice>candidateCount+1)
+        if(choice<0||choice>candidateCount)
         {  cout<<"Invalid selection. Re-enter.\n";
                  continue;
         }
@@ -409,6 +436,6 @@ void ElectionManager::listCandidates(){
         cout<<"Name:\t"<<candidates[choice-1]->getId()<<endl;
         cout<<"Age:\t"<<candidates[choice-1]->getAge()<<endl;
         cout<<"Address:\t"<<candidates[choice-1]->getAddress()<<endl;
-        cout<<"Constituency:\t"<<candidates[choice-1]->getAge()<<endl;
+        cout<<"Constituency:\t"<<candidates[choice-1]->getConstituencyName()<<endl;
     }
 }
