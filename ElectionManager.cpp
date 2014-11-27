@@ -623,3 +623,46 @@ void ElectionManager::deleteVoter()
     }
     fout.close();
 }
+
+void ElectionManager::searchVoter()
+{
+    cout<<"Search voter by\na. name\t\tb. voter id\n";
+    char name[50], ch;
+    strset(name,0);
+    ch=_getch();
+    int vid = 0;
+    if(ch=='a')
+    {
+        cout<<"Enter name of the voter.\n";
+        gets(name);
+    }
+    if(ch=='b')
+    {
+        cout<<"Enter Voter ID of the voter.\n";
+        cin>>vid;
+    }
+    int flag = 0;
+    for(int i=0;i<voterCount;i++)
+    {
+        if(voterList[i]->voterId==vid || strcmpi(voterList[i]->name,name)==0)
+        {
+            flag=1;
+            cout<<"Name:\t"<<voterList[i]->name;
+            cout<<"Age:\t"<<voterList[i]->age;
+            cout<<"VoterId:\t"<<voterList[i]->voterId;
+            cout<<"Address:\t"<<voterList[i]->address;
+            cout<<"Constituancy:\t"<<voterList[i]->constituancy;
+            break;
+        }
+    }
+    if(flag==0)
+    {
+        cout<<"Voter not found.\n";
+    }
+    cout<<"Press 0 to return to main menu. Press 1 to search for another voter\n";
+    ch=_getch();
+    if(ch=='0')
+        return;
+    if(ch=='1')
+        searchVoter();
+}

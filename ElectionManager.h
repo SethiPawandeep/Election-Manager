@@ -36,6 +36,7 @@ class ElectionManager{
         void createVoterList();
         void listVoters();
         void deleteVoter();
+        void searchVoter();
 };
 
 #endif // ELECTIONMANAGER_H
