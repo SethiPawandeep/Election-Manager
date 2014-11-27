@@ -12,6 +12,7 @@
 #include <malloc.h>
 #include <stdio.h>
 #include <stdlib.h>
+#
 
 #define CONSTITUENCY_LIST  "Constituency.dat"
 #define CANDIDATE_LIST  "Candidates.dat"
@@ -20,12 +21,14 @@
 
 using namespace std;
 
-ElectionManager::ElectionManager(){
+ElectionManager::ElectionManager()
+{
     std::fstream f;
     f.open(CONSTITUENCY_LIST,std::ios::in|std::ios::binary);
     Constituency* constituancy;
     constituancyCount=0;
-    while(f.read((char*)(constituancy= (Constituency*) malloc(sizeof(Constituency))), sizeof(Constituency))){
+    while(f.read((char*)(constituancy= (Constituency*) malloc(sizeof(Constituency))), sizeof(Constituency)))
+    {
         this->constituancies = (Constituency**) realloc(this->constituancies, ++this->constituancyCount * sizeof(Constituency*));
         this->constituancies[constituancyCount - 1] = constituancy;
     }
@@ -35,7 +38,8 @@ ElectionManager::ElectionManager(){
     f.open(USERS_LIST,std::ios::in|std::ios::binary);
     User* user;
     userCount = 0;
-    while(f.read((char*)(user = (User*) malloc(sizeof(User))), sizeof(User))){      //doubt
+    while(f.read((char*)(user = (User*) malloc(sizeof(User))), sizeof(User)))
+    {
         this->users = (User**) realloc(this->users, ++this->userCount * sizeof(User*));
         this->users[userCount - 1] = user;
     }
@@ -63,6 +67,21 @@ ElectionManager::ElectionManager(){
     free(voter);
     f.close();
 
+    f.open("LockElectionManager.lck",ios::in);
+    if(f.is_open)
+    {
+        isLocked = true;
+    }
+    else
+    {
+        isLocked = false;
+    }
+
+}
+
+bool ElectionManager::getLocked()
+{
+    return this->isLocked;
 }
 
 void ElectionManager::createCandidate(){
@@ -170,7 +189,7 @@ void ElectionManager::deleteConstituancy(){
     int i,j;
     std::cout<<"Select the constituency to be deleted\n";
     for(i=0;i<getConstituancyCount();i++)
-       cout<<i+1<<". "<<constituancies[i]->cn<<endl;
+        cout<<i+1<<". "<<constituancies[i]->cn<<endl;
     int p;
     cin>>p;
     --p;
@@ -249,7 +268,7 @@ void ElectionManager::deleteConstituancy(){
             constituancies[i-1]=constituancies[i];
         }
         i++;
-     }
+    }
     free(constituancies[constituancyCount]);
     --constituancyCount;
     constituancies=(Constituency**) realloc(constituancies,constituancyCount*sizeof(Constituency));
@@ -416,10 +435,10 @@ void ElectionManager::listCandidates(){
 
     while(1)
     {  cout<<"Enter your choice to view the candidate or enter 0 to return to the main menu.\n";
-             cin>>choice;
+        cin>>choice;
         if(choice<0||choice>candidateCount)
         {  cout<<"Invalid selection. Re-enter.\n";
-                 continue;
+            continue;
         }
         if(choice==0)
         {
@@ -612,7 +631,6 @@ void ElectionManager::searchVoter()
 
 void ElectionManager::lockElectionManager()
 {
-    Voting v;
     cout<<"Selecting this option means that you have added all the voters, constituancies and candidates.\n";
     cout<<"After this you would not be able to add any more voters, constotuacies or candidates\n";
     cout<<"Please enter your id to confirm.\n";
@@ -627,7 +645,6 @@ void ElectionManager::lockElectionManager()
             cout<<"Election Manager Locked. Only voting can be performed now\n";
             v.verify();
         }
-    ofstream fout("LockElectionManager.dat",ios::binary|ios::out);
-    fout.write((char*)&v,sizeof(Voting));
+    ofstream fout("LockElectionManager.lck",ios::binary|ios::out);
     fout.close();
 }

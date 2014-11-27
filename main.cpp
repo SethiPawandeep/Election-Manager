@@ -6,19 +6,16 @@
 int main()
 {
     ElectionManager em;
-    Voting v;
-    bool emLocked = false;
-    ifstream fin("LockElectionManager.dat",ios::in);
-    emLocked = fin.read((char*)&v,sizeof(Voting));
-    if(!emLocked)
-    {
-        if(em.getUserCount() < 1)
+    if(em.getUserCount() < 1)
         em.createUser(true);
-        system("cls");
+    system("cls");
+    if(!em.getLocked())
+    {
         while(em.loginPrompt() != 1);
-        system("cls");
-        system("color a");
-        em.showMenu();
     }
+    system("cls");
+    system("color a");
+    em.showMenu();
+
 
 }
