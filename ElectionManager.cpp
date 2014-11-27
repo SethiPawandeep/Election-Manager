@@ -60,7 +60,7 @@ ElectionManager::ElectionManager()
     voterCount=0;
     while(f.read((char*)(voter=(Voter*) malloc(sizeof(Voter))),sizeof(Voter)))
     {
-        this->voterList = (Voter**) realloc(this->voterList, ++this->voterCount * sizeof(Voter*));
+        this->voterList = (Voter**) realloc(voterList, (++this->voterCount) * sizeof(Voter*));
         this->voterList[voterCount-1] = voter;
     }
     free(voter);
@@ -123,7 +123,6 @@ void ElectionManager::createCandidate(){
 
 void ElectionManager::deleteCandidate()
 {   int i;
-    Candidate* lastCandidate=candidates[candidateCount];
     for(i = 0; i<candidateCount;i++){
         std::cout<<i+1<<". "<<candidates[i]->getId()<<endl;
     }
@@ -131,13 +130,14 @@ void ElectionManager::deleteCandidate()
     int choice;
     cin>>choice;
     i=choice-1;
+    free(candidates[i]);
     while(i<candidateCount)
     {
         candidates[i]=candidates[i+1];
         i++;
     }
-    free(lastCandidate);
-    candidateCount--;
+    --candidateCount;
+    candidates = (Candidate**) realloc(candidates, this->candidateCount * sizeof(Candidate*));
     fstream f;
     f.open(CANDIDATE_LIST,ios::out|ios::binary);
     i=0;
@@ -347,7 +347,8 @@ void ElectionManager::listConstituancy()
     }
 }
 
-void ElectionManager::showMenu(){
+void ElectionManager::showMenu()
+{
     int k = 0;
     while(1)
     {
@@ -391,7 +392,7 @@ void ElectionManager::showMenu(){
                 std::cout<<"\tc. Delete\n";
                 cout<<"\td. Search\n";
             }
-            cout<<"4. Lock Election Manager";
+            cout<<"4. Lock Election Manager\n";
             std::cout<<"6. Logout\n";
         }
         if(isLocked)
@@ -413,8 +414,17 @@ void ElectionManager::showMenu(){
         if(ch=='3')
         {
             k=3;
+            if(isLocked)
+            {
+                if(k==3)
+                {
+                    vote();
+                    continue;
+                }
+            }
             continue;
         }
+
         if(ch=='4')
             lockElectionManager();
         if(k==1) //Done
@@ -474,13 +484,6 @@ void ElectionManager::showMenu(){
                 if(ch=='6')
                     return;
             }
-            if(isLocked)
-            {
-                if(ch=='3')
-                {
-                    vote();
-                }
-            }
         }
     }
 
@@ -517,7 +520,7 @@ void ElectionManager::createVoterList()
     cout<<"Select the constituancy to create the voter list for\n";
     for(i=0;i<constituancyCount;i++)
     {
-        cout<<i+1<<constituancies[i]->cn<<endl;
+        cout<<i+1<<". "<<constituancies[i]->cn<<endl;
     }
     int choice;
     cin>>choice;
@@ -526,12 +529,17 @@ void ElectionManager::createVoterList()
     char temp[25];
     cin>>numToAdd;
     numToAdd+=voterCount;
+    int k=0;
     for(voterCount;voterCount<numToAdd;voterCount++)
     {
         Voter* VL = (Voter*) malloc(sizeof(Voter));
-        cout<<"Enter details of voter #"<<voterCount<<endl;
+        cout<<"Enter details of voter #"<<voterCount+1<<endl;
         cout<<"Name:\t";
-        cin.ignore();
+        if(!k)
+        {
+            cin.ignore();
+            k++;
+        }
         cin.getline(VL->name,50);
         cout<<"Age\t";
         cin>>VL->age;
@@ -554,7 +562,7 @@ void ElectionManager::createVoterList()
         fout.write((char*)&VL,sizeof(Voter*));
         fout.close();
         fout.open(VOTER_LIST,ios::app|ios::binary);
-        fout.write((char*)&VL,sizeof(Voter*));
+        fout.write((char*)VL,sizeof(Voter));
         fout.close();
     }
     cout<<"Voter List created.";
@@ -565,6 +573,7 @@ void ElectionManager::listVoters()
     int i;
     char name[50];
     cout<<"Select the constituancy to view the voter list for. Enter 0 to return to the main menu.\n";
+
     int voterSelection=-1;
     while(voterSelection==-1||voterSelection!=0)
     {
@@ -585,16 +594,18 @@ void ElectionManager::listVoters()
                 break;
         }
         int j = 0;
+        system("cls");
         for(i=0;i<voterCount;i++)
         {
             if(strcmpi(voterList[i]->constituancy, constituancies[choice-1]->cn)==0)
             {
                 j++;
-                cout<<j+1<<". "<<voterList[i]<<endl;
+                cout<<j<<". "<<voterList[i]->name<<endl;
             }
         }
-        cout<<"Enter the name of a voter to view information. Enter 0 to return to the main menu. Enter -1 to return to previous page.\n";
-        gets(name);
+        cout<<"Enter the name of a voter to view information.\n";
+        cin.ignore();
+        cin.getline(name,50);
         if(voterSelection!=0||voterSelection!=-1)
         {
             for(i=0;i<voterCount;i++)
@@ -612,13 +623,25 @@ void ElectionManager::listVoters()
             }
         }
         _getch();
+        cout<<"Enter 0 to return to the main menu. Enter -1 to return to previous page.\n";
+        while(1)
+        {
+            cin>>choice;
+            if(choice<-1||choice>0)
+                cout<<"Invalid selection.";
+            else if(choice==0)
+                return;
+            else
+                break;
+        }
+
     }
 }
 
 void ElectionManager::deleteVoter()
 {
     int vid;
-    cout<<"Enter the name or voter Id of the voter to be deleted\n";
+    cout<<"Enter the Voter Id of the voter to be deleted\n";
     cin>>vid;
     int i = 0;
     while(i<voterCount)
@@ -627,9 +650,12 @@ void ElectionManager::deleteVoter()
         {
             voterList[i-1]=voterList[i];
         }
+        if(i==vid-1000)
+        {
+            free(voterList[i]);
+        }
         i++;
     }
-    free(voterList[voterCount]);
     --voterCount;
     voterList=(Voter**) realloc(voterList,voterCount*sizeof(Voter));
     ofstream fout(VOTER_LIST,ios::binary|ios::out);
@@ -709,12 +735,14 @@ void ElectionManager::vote()
 {
     char name[50], age, voterId, constituancy[20];
     cout<<"Name\t";
-    gets(name);
+    cin.getline(name,50);
     cout<<"Age:\t";
     cin>>age;
     cout<<"VoterId:\t";
+    cin.ignore();
     cin>>voterId;
     cout<<"Constituancy\n";
+    cin.ignore();
     cin>>constituancy;
     char* candidateName[candidateCount];
     int j, k = 0;

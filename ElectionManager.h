@@ -12,11 +12,11 @@ class ElectionManager{
         int voterCount;
         int userCount;
         int candidateCount;
-        Constituency** constituancies;
+        Constituency** constituancies = 0;
         User** users = 0;
         Candidate** candidates = 0;
         User* loggedIn;
-        Voter** voterList;
+        Voter** voterList = 0;
     public:
         ElectionManager();
         int getConstituancyCount(){
