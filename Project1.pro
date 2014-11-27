@@ -6,7 +6,8 @@ CONFIG -= qt
 SOURCES += main.cpp \
     ElectionManager.cpp \
     User.cpp \
-    Candidate.cpp
+    Candidate.cpp \
+    Voting.cpp
 
 include(deployment.pri)
 qtcAddDeployment()
@@ -16,5 +17,6 @@ HEADERS += \
     Constituency.h \
     User.h \
     ElectionManager.h \
-    VoterList.h
+    VoterList.h \
+    Voting.h
 

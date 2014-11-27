@@ -17,10 +17,6 @@ class User
         }
 
         bool verifyLogin(char* const id, char* const pass);
-        void constituency();      //to add consti.
-        void edit();    //to edit details of candi.
-        void display();//to display details of candi.
-        void voterList();
 };
 
 #endif // ADMIN_H

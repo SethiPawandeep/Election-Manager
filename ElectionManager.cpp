@@ -3,6 +3,7 @@
 #include "Candidate.h"
 #include "User.h"
 #include "VoterList.h"
+#include "Voting.h"
 
 #include <cstring>
 #include <conio.h>
@@ -87,7 +88,8 @@ void ElectionManager::createCandidate(){
         }
         break;
     }while(1);
-    candidates[candidateCount] = new Candidate(id, this->constituancies[consSelection-1]->cn,address,atoi(age));
+    int votes = 0;
+    candidates[candidateCount] = new Candidate(id, this->constituancies[consSelection-1]->cn,address,atoi(age),votes);
     candidateCount++;
     std::ofstream fout(CANDIDATE_LIST,std::ios::binary|std::ios::app);
     fout.write((char*)candidates[candidateCount-1],sizeof(Candidate));
@@ -138,14 +140,6 @@ void ElectionManager::createUser(bool isFirstUser = false)
         std::cout << "Press any key to continue and create account\n";
         _getch();
     }
-
-    //    std::fstream f("counter.txt",ios::app|ios::in);
-    //    f.seekg(0);
-    //    char c;
-    //    f.get(c);
-    //    c++;
-    //    f.seekg(0);
-    //    f<<c;
 
     char pass[20], confirm[20], id[20];
 
@@ -287,7 +281,6 @@ void ElectionManager::createConstituancy(){
         }
         if(constituancies != 0) delete[] constituancies;
         constituancies = tempCons;
-  //      constituancies = (Constituency**)realloc(constituancies,(constituancyCount + 1)*sizeof(Constituency*));
         constituancies[constituancyCount] = (Constituency*) malloc(sizeof(Constituency));
         strcpy(constituancies[constituancyCount]->cn, cName);
         std::ofstream fout;
@@ -361,7 +354,9 @@ void ElectionManager::showMenu(){
             std::cout<<"\ta. Add\n";
             std::cout<<"\tb. View\n";
             std::cout<<"\tc. Delete\n";
+            cout<<"\td. Search\n";
         }
+        cout<<"4. Lock Election Manager";
         std::cout<<"6. Logout\n";
         std::cout<<"Enter your choice\n";
         char ch=getch();
@@ -380,90 +375,38 @@ void ElectionManager::showMenu(){
             k=3;
             continue;
         }
+        if(ch=='4')
+            lockElectionManager();
         if(k==1) //Done
         {
-            if(ch=='a'||ch=='A') createConstituancy();//Reduced
+            if(ch=='a'||ch=='A') createConstituancy();
             if(ch=='b'||ch=='B') {
-                listConstituancy();//
+                listConstituancy();
                 _getch();
             }
-            if(ch=='c'||ch=='C') deleteConstituancy();//Reduced
+            if(ch=='c'||ch=='C') deleteConstituancy();
 
         }
         if(k==2)
         {
-            if(ch=='a'||ch=='A') createCandidate();//Done
+            if(ch=='a'||ch=='A') createCandidate();
             if(ch=='b'||ch=='B') {
-                listCandidates();//Done
+                listCandidates();
                 _getch();
             }
             if(ch=='C'||ch=='c') deleteCandidate();
         }
-        if(k==3)
+        if(k==3)//Bugs
         {
-            if(ch=='a'||ch=='A') createVoterList();
-            if(ch=='b'||ch=='B') listVoters();
+            if(ch=='a'||ch=='A') createVoterList();//Error: The inferior stopped working because it received a signal from the Operating System, no voter detail written into the file or in the voterList.
+            if(ch=='b'||ch=='B') listVoters();//Does not work due to the above reason
+            if(ch=='c'||ch=='C') deleteVoter();//Does not work due to the above reason
+            if(ch=='d'||ch=='D') searchVoter();//Does not work due to the above reason
         }
-        //        if(k==3)
-        //        {
-        //            if(ch=='a'||ch=='A') Voter_List();
-        //            if(ch=='c'||ch=='C')
-        //            {
-        //                getch();
-        //                cout<<"pass1";
-        //                ifstream fin("Constituencies.dat",ios::in);
-        //                cout<<"Select the constituency to view the voter list\n";
-        //                int i=1;
-        //                while(fin.read((char*)&b,sizeof(b)))
-        //                    cout<<i++<<". "<<b.cn;
-        //                fin.close();
-        //                i=1;
-        //                ch=getch();
-        //                char s[50];
-        //                strcpy(s,con[i=(int)(ch-'1')].cn);
-        //                       strcpy(s,strcat("VL ",s));
-        //                       fin.open(s,ios::in|ios::binary);
-        //                       clrscr();
-        //                       cout<<"scr cleared";
-        //                       getch();
-        //                       cout<<"S. No.\t"<<"Voter Id.\t"<<"Name\t"<<"Age\n";
-        //                       while(fin.read((char*)&v,sizeof(v)))
-        //                       cout<<i++<<"\t"<<v.vid<<"\t"<<v.name<<"\t"<<v.age<<endl;
-        //                       cout<<"Press 6 to return to previous menu\n";
-        //                       cout<<"Press 7 to edit voter list\n";
-        //                       ch=getch();
-        //                       fin.close();
-        //                       if(ch=='6') goto label;
-        //            }
-        //            }
         if(ch=='6')
             return;
     }
 }
-//                       int admin::login()
-//                {       char id1[20],pass1[20];
-//label:
-//                    clrscr();
-//                    gotoxy(35,12);
-//                    cout<<"Id:  ";
-//                    gotoxy(30,13);
-//                    cout<<"Password\n";
-//                    gotoxy(39,12);
-//                    cin>>id1;
-//                    gotoxy(39,13);
-//                    cin>>pass1;
-//                    ifstream fin("adminlogin.dat",ios::binary|ios::in);
-//                    fin.read((char*)&a1,sizeof(a1));
-//                    if((strcmpi(id,id1)==0)&&(strcmp(pass,pass1)==0))
-//                    {	cout<<"Access Granted\n";
-//                        return 1;
-//                    }
-//                    else
-//                    {	cout<<"Either Id or Password Wrong.\nRe-enter\n";
-//                        delay(500);
-//                        goto label;
-//                    }
-//                }
 
 void ElectionManager::listCandidates(){
     for(int i = 0; i<candidateCount;i++){
@@ -665,4 +608,26 @@ void ElectionManager::searchVoter()
         return;
     if(ch=='1')
         searchVoter();
+}
+
+void ElectionManager::lockElectionManager()
+{
+    Voting v;
+    cout<<"Selecting this option means that you have added all the voters, constituancies and candidates.\n";
+    cout<<"After this you would not be able to add any more voters, constotuacies or candidates\n";
+    cout<<"Please enter your id to confirm.\n";
+    char id[20], pass[20];
+    cout<<"\n\n\t\tId:\t";
+    cin>>id;
+    cout<<"\t\tpass:\t";
+    cin>>pass;
+    for(int i=0;i<getUserCount();i++)
+        if(users[i]->verifyLogin(id, pass))
+        {
+            cout<<"Election Manager Locked. Only voting can be performed now\n";
+            v.verify();
+        }
+    ofstream fout("LockElectionManager.dat",ios::binary|ios::out);
+    fout.write((char*)&v,sizeof(Voting));
+    fout.close();
 }
