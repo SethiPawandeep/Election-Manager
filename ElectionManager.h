@@ -4,16 +4,18 @@
 #include "Constituency.h"
 #include "User.h"
 #include "Candidate.h"
-
+#include "VoterList.h"
 class ElectionManager{
     private:
         int constituancyCount;
+        int voterCount;
         int userCount;
         int candidateCount;
         Constituency** constituancies;
         User** users = 0;
         Candidate** candidates = 0;
         User* loggedIn;
+        VoterList** voterList;
     public:
         ElectionManager();
         int getConstituancyCount(){
@@ -32,6 +34,7 @@ class ElectionManager{
         void deleteConstituancy();//to del consti.
         void listCandidates();
         void listConstituancy();
+        void createVoterList();
 };
 
 #endif // ELECTIONMANAGER_H

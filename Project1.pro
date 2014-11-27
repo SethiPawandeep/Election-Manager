@@ -14,7 +14,7 @@ qtcAddDeployment()
 HEADERS += \
     Candidate.h \
     Constituency.h \
-    VoterId.h \
     User.h \
-    ElectionManager.h
+    ElectionManager.h \
+    VoterList.h
 
