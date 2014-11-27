@@ -4,7 +4,7 @@
 #include<string.h>
 using namespace std;
 
-struct VoterList
+struct Voter
 {
     char name[50], constituancy[20], address[100];
     int age, voterId;

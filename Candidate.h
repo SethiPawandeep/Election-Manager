@@ -26,6 +26,11 @@ class Candidate
         {
             return age;
         }
+        inline void vote()
+        {
+            votes++;
+        }
+
 };
 
 #endif // CANDIDATE_H

@@ -7,6 +7,7 @@
 #include "VoterList.h"
 class ElectionManager{
     private:
+        bool isLocked;
         int constituancyCount;
         int voterCount;
         int userCount;
@@ -15,7 +16,7 @@ class ElectionManager{
         User** users = 0;
         Candidate** candidates = 0;
         User* loggedIn;
-        VoterList** voterList;
+        Voter** voterList;
     public:
         ElectionManager();
         int getConstituancyCount(){
@@ -38,6 +39,8 @@ class ElectionManager{
         void deleteVoter();
         void searchVoter();
         void lockElectionManager();
+        bool getLocked();
+        void vote();
 };
 
 #endif // ELECTIONMANAGER_H

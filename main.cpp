@@ -1,5 +1,4 @@
 #include "ElectionManager.h"
-#include "Voting.h"
 #include <stdlib.h>
 #include <fstream>
 
