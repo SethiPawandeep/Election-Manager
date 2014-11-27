@@ -15,7 +15,6 @@
 #define CONSTITUENCY_LIST  "Constituency.dat"
 #define CANDIDATE_LIST  "Candidates.dat"
 #define USERS_LIST  "Users.dat"
-#define TEMP  "temp.dat"
 #define VOTER_LIST "Voters.dat"
 
 using namespace std;
@@ -23,7 +22,6 @@ using namespace std;
 ElectionManager::ElectionManager(){
     std::fstream f;
     f.open(CONSTITUENCY_LIST,std::ios::in|std::ios::binary);
-    int i = 0;
     Constituency* constituancy;
     constituancyCount=0;
     while(f.read((char*)(constituancy= (Constituency*) malloc(sizeof(Constituency))), sizeof(Constituency))){
@@ -34,7 +32,6 @@ ElectionManager::ElectionManager(){
     f.close();
 
     f.open(USERS_LIST,std::ios::in|std::ios::binary);
-    i = 0;
     User* user;
     userCount = 0;
     while(f.read((char*)(user = (User*) malloc(sizeof(User))), sizeof(User))){      //doubt
@@ -45,7 +42,6 @@ ElectionManager::ElectionManager(){
     f.close();
 
     f.open(CANDIDATE_LIST,std::ios::in|std::ios::binary);
-    i = 0;
     Candidate* candidate;
     candidateCount = 0;
     while(f.read((char*)(candidate = (Candidate*) malloc(sizeof(Candidate))), sizeof(Candidate))){
@@ -56,7 +52,6 @@ ElectionManager::ElectionManager(){
     f.close();
 
     f.open(VOTER_LIST,ios::in|ios::binary);
-    i = 0;
     VoterList* voter;
     voterCount=0;
     while(f.read((char*)(voter=(VoterList*) malloc(sizeof(VoterList))),sizeof(VoterList)))
@@ -72,7 +67,7 @@ ElectionManager::ElectionManager(){
 void ElectionManager::createCandidate(){
     candidates = (Candidate **) realloc(candidates, (candidateCount + 1) * sizeof(Candidate*));
     char id[20], address[100],age[5];
-    int consSelection,constituancy;
+    int consSelection;
     system("cls");
     cout<<"\n\nEnter Details\n";
     cout<<"Name: ";
@@ -100,8 +95,8 @@ void ElectionManager::createCandidate(){
     char tmp[25];
     strset(tmp,0);
     strcpy(tmp,"CL_");
-    strcat(tmp,this->constituancies[consSelection-1]);
-    fout.open(tmp,ios::binary,ios::app);
+    strcat(tmp,this->constituancies[consSelection-1]->cn);
+    fout.open(tmp,ios::binary|ios::app);
     fout.write((char*)&candidates[candidateCount-1],sizeof(Candidate));
     fout.close();
 }
@@ -350,8 +345,8 @@ void ElectionManager::showMenu(){
         if(k==1)
         {
             std::cout<<"\ta. Add\n";
-            std::cout<<"\tb. Delete\n";
-            std::cout<<"\tc. View\n";
+            std::cout<<"\tb. View\n";
+            std::cout<<"\tc. Delete\n";
         }
         std::cout<<"2. Candidates\n";
         if(k==2)
@@ -364,8 +359,8 @@ void ElectionManager::showMenu(){
         if(k==3)
         {
             std::cout<<"\ta. Add\n";
-            std::cout<<"\tb. Edit\n";
-            std::cout<<"\tc. View\n";
+            std::cout<<"\tb. View\n";
+            std::cout<<"\tc. Delete\n";
         }
         std::cout<<"6. Logout\n";
         std::cout<<"Enter your choice\n";
@@ -388,11 +383,12 @@ void ElectionManager::showMenu(){
         if(k==1) //Done
         {
             if(ch=='a'||ch=='A') createConstituancy();//Reduced
-            if(ch=='b'||ch=='B') deleteConstituancy();//Reduced
-            if(ch=='c'||ch=='C') {
-                listConstituancy();
+            if(ch=='b'||ch=='B') {
+                listConstituancy();//
                 _getch();
             }
+            if(ch=='c'||ch=='C') deleteConstituancy();//Reduced
+
         }
         if(k==2)
         {
@@ -406,6 +402,7 @@ void ElectionManager::showMenu(){
         if(k==3)
         {
             if(ch=='a'||ch=='A') createVoterList();
+            if(ch=='b'||ch=='B') listVoters();
         }
         //        if(k==3)
         //        {
@@ -545,4 +542,84 @@ void ElectionManager::createVoterList()
     cout<<"Voter List created.";
 }
 
+void ElectionManager::listVoters()
+{
+    int i;
+    char name[50];
+    cout<<"Select the constituancy to view the voter list for. Enter 0 to return to the main menu.\n";
+    int voterSelection=-1;
+    while(voterSelection==-1||voterSelection!=0)
+    {
+        system("cls");
+        for(i=0;i<constituancyCount;i++)
+        {
+            cout<<i+1<<". "<<constituancies[i]->cn<<endl;
+        }
+        int choice;
+        while(1)
+        {
+            cin>>choice;
+            if(choice<0||choice>constituancyCount)
+                cout<<"Invalid selection.";
+            else if(choice==0)
+                return;
+            else
+                break;
+        }
+        int j = 0;
+        for(i=0;i<voterCount;i++)
+        {
+            if(strcmpi(voterList[i]->constituancy, constituancies[choice-1]->cn)==0)
+            {
+                j++;
+                cout<<j+1<<". "<<voterList[i]<<endl;
+            }
+        }
+        cout<<"Enter the name of a voter to view information. Enter 0 to return to the main menu. Enter -1 to return to previous page.\n";
+        gets(name);
+        if(voterSelection!=0||voterSelection!=-1)
+        {
+            for(i=0;i<voterCount;i++)
+            {
+                if(strcmpi(voterList[i]->name, name)==0 && strcmpi(voterList[i]->constituancy, constituancies[choice-1]->cn)==0)
+                {
+                    cout<<"Name:\t"<<voterList[i]->name<<endl;
+                    cout<<"Address:\t"<<voterList[i]->address<<endl;
+                    cout<<"Age:\t"<<voterList[i]->age;
+                    cout<<"Voter Id:\t"<<voterList[i]->voterId<<endl;
+                    cout<<"Constituancy:\t"<<voterList[i]->constituancy;
+                    break;
+                }
 
+            }
+        }
+        _getch();
+    }
+}
+
+void ElectionManager::deleteVoter()
+{
+    int vid;
+    cout<<"Enter the name or voter Id of the voter to be deleted\n";
+    cin>>vid;
+    int i = 0;
+    while(i<voterCount)
+    {
+        if(i>vid-1000)  //since voters are already sorted in order of their voter Ids.
+        {
+            voterList[i-1]=voterList[i];
+        }
+        i++;
+    }
+    free(voterList[voterCount]);
+    --voterCount;
+    voterList=(VoterList**) realloc(voterList,voterCount*sizeof(VoterList));
+    ofstream fout(VOTER_LIST,ios::binary|ios::out);
+    i=0;
+    while(i<voterCount)
+    {
+        fout.write((char*)&voterList[i],sizeof(VoterList));
+        i++;
+    }
+    fout.close();
+}

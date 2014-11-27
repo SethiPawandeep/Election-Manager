@@ -28,13 +28,14 @@ class ElectionManager{
         void showMenu();
         void createUser(bool);
         void createCandidate();
-        void editCandidate();
-        void createConstituancy();
-        void deleteCandidate();  //to delete candi.
-        void deleteConstituancy();//to del consti.
+        void deleteCandidate();
         void listCandidates();
+        void createConstituancy();
+        void deleteConstituancy();
         void listConstituancy();
         void createVoterList();
+        void listVoters();
+        void deleteVoter();
 };
 
 #endif // ELECTIONMANAGER_H
