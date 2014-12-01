@@ -12,6 +12,7 @@ class ElectionManager{
         int voterCount;
         int userCount;
         int candidateCount;
+        int haveVoted = 0;
         Constituency** constituancies = 0;
         User** users = 0;
         Candidate** candidates = 0;
@@ -41,6 +42,8 @@ class ElectionManager{
         void lockElectionManager();
         bool getLocked();
         void vote();
+        void showResult();
+        ~ElectionManager();
 };
 
 #endif // ELECTIONMANAGER_H

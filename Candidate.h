@@ -30,6 +30,10 @@ class Candidate
         {
             votes++;
         }
+        inline int getVotes()
+        {
+            return votes;
+        }
 
 };
 

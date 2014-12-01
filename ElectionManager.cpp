@@ -11,7 +11,6 @@
 #include <malloc.h>
 #include <stdio.h>
 #include <stdlib.h>
-#
 
 #define CONSTITUENCY_LIST  "Constituency.dat"
 #define CANDIDATE_LIST  "Candidates.dat"
@@ -319,14 +318,9 @@ void ElectionManager::createConstituancy(){
 int ElectionManager::loginPrompt()
 {
     char id1[20],pass1[20];
-    //clrscr();
-    //gotoxy(35,12);
     std::cout<<"Id:\t\t";
-    //gotoxy(30,13);
-    //gotoxy(39,12);
     std::cin>>id1;
     std::cout<<"Password:\t";
-    //gotoxy(39,13);
     std::cin>>pass1;
 
     for(int i=0; i<userCount; i++){
@@ -353,139 +347,151 @@ void ElectionManager::showMenu()
     while(1)
     {
         system("cls");
-        std::cout<<"1. Constituencies\n";
-        if(k==1)
+        if(haveVoted<voterCount)
         {
-            if(!isLocked)
+            std::cout<<"1. Constituencies\n";
+            if(k==1)
             {
-                std::cout<<"\ta. Add\n";
-                std::cout<<"\tb. View\n";
-                std::cout<<"\tc. Delete\n";
+                if(!isLocked)
+                {
+                    std::cout<<"\ta. Add\n";
+                    std::cout<<"\tb. View\n";
+                    std::cout<<"\tc. Delete\n";
+                }
+                else
+                {
+                    std::cout<<"\ta. View\n";
+                }
             }
-            else
+            std::cout<<"2. Candidates\n";
+            if(k==2)
             {
-                std::cout<<"\ta. View\n";
-            }
-        }
-        std::cout<<"2. Candidates\n";
-        if(k==2)
-        {
-            if(!isLocked)
-            {
-                std::cout<<"\ta. Add\n";
-                std::cout<<"\tb. View\n";
-                std::cout<<"\tc. Delete\n";
-            }
-            else
-            {
-                std::cout<<"\ta. View\n";
+                if(!isLocked)
+                {
+                    std::cout<<"\ta. Add\n";
+                    std::cout<<"\tb. View\n";
+                    std::cout<<"\tc. Delete\n";
+                }
+                else
+                {
+                    std::cout<<"\ta. View\n";
 
+                }
             }
-        }
-        if(!isLocked)
-        {
-            std::cout<<"3. Voter list\n";
-            if(k==3)
+            if(!isLocked)
             {
-                std::cout<<"\ta. Add\n";
-                std::cout<<"\tb. View\n";
-                std::cout<<"\tc. Delete\n";
-                cout<<"\td. Search\n";
+                std::cout<<"3. Voter list\n";
+                if(k==3)
+                {
+                    std::cout<<"\ta. Add\n";
+                    std::cout<<"\tb. View\n";
+                    std::cout<<"\tc. Delete\n";
+                    cout<<"\td. Search\n";
+                }
+                cout<<"4. Lock Election Manager\n";
+                std::cout<<"6. Logout\n";
             }
-            cout<<"4. Lock Election Manager\n";
-            std::cout<<"6. Logout\n";
-        }
-        if(isLocked)
-        {
-            cout<<"3. Vote\n";
-        }
-        std::cout<<"Enter your choice\n";
-        char ch=getch();
-        if(ch=='1')
-        {
-            k=1;
-            continue;
-        }
-        if(ch=='2')
-        {
-            k=2;
-            continue;
-        }
-        if(ch=='3')
-        {
-            k=3;
             if(isLocked)
+            {
+                cout<<"3. Vote\n";
+            }
+            std::cout<<"Enter your choice\n";
+            char ch=getch();
+            if(ch=='1')
+            {
+                k=1;
+                continue;
+            }
+            if(ch=='2')
+            {
+                k=2;
+                continue;
+            }
+            if(ch=='3')
+            {
+                k=3;
+                if(isLocked)
+                {
+                    if(k==3)
+                    {
+                        vote();
+                        continue;
+                    }
+                }
+                continue;
+            }
+
+            if(ch=='4')
+                lockElectionManager();
+            if(k==1)
+            {
+                if(!isLocked)
+                {
+                    if(ch=='a'||ch=='A') createConstituancy();
+                    if(ch=='b'||ch=='B')
+                    {
+                        listConstituancy();
+                        _getch();
+                    }
+                    if(ch=='c'||ch=='C') deleteConstituancy();
+
+                }
+                else
+                {
+                    if(ch=='a'||ch=='A')
+                    {
+                        listConstituancy();
+                        _getch();
+
+                    }
+                }
+            }
+
+            if(k==2)
+            {
+                if(!isLocked)
+                {
+                    if(ch=='a'||ch=='A') createCandidate();
+                    if(ch=='b'||ch=='B') {
+                        listCandidates();
+                        _getch();
+                    }
+                    if(ch=='C'||ch=='c') deleteCandidate();
+                }
+                else
+                {
+                    if(ch=='a'||ch=='A')
+                    {
+                        listCandidates();
+                        _getch();
+                    }
+
+                }
+            }
+            if(!isLocked)
             {
                 if(k==3)
                 {
-                    vote();
-                    continue;
-                }
-            }
-            continue;
-        }
-
-        if(ch=='4')
-            lockElectionManager();
-        if(k==1) //Done
-        {
-            if(!isLocked)
-            {
-                if(ch=='a'||ch=='A') createConstituancy();
-                if(ch=='b'||ch=='B')
-                {
-                    listConstituancy();
-                    _getch();
-                }
-                if(ch=='c'||ch=='C') deleteConstituancy();
-
-            }
-            else
-            {
-                if(ch=='a'||ch=='A')
-                {
-                    listConstituancy();
-                    _getch();
-
-                }
-            }
-        }
-
-        if(k==2)
-        {
-            if(!isLocked)
-            {
-                if(ch=='a'||ch=='A') createCandidate();
-                if(ch=='b'||ch=='B') {
-                    listCandidates();
-                    _getch();
-                }
-                if(ch=='C'||ch=='c') deleteCandidate();
-            }
-            else
-            {
-                if(ch=='a'||ch=='A')
-                {
-                    listCandidates();
-                    _getch();
-                }
-
-            }
-        }
-            if(!isLocked)
-            {
-                if(k==3)//Bugs
-                {
-                    if(ch=='a'||ch=='A') createVoterList();//Error: The inferior stopped working because it received a signal from the Operating System, no voter detail written into the file or in the voterList.
-                    if(ch=='b'||ch=='B') listVoters();//Does not work due to the above reason
-                    if(ch=='c'||ch=='C') deleteVoter();//Does not work due to the above reason
-                    if(ch=='d'||ch=='D') searchVoter();//Does not work due to the above reason
+                    if(ch=='a'||ch=='A') createVoterList();
+                    if(ch=='b'||ch=='B') listVoters();
+                    if(ch=='c'||ch=='C') deleteVoter();
+                    if(ch=='d'||ch=='D') searchVoter();
                 }
                 if(ch=='6')
                     return;
             }
         }
+        else
+        {
+            cout<<"1. Results\n";
+            cout<<"2. Exit\n";
+            cout<<"Enter your choice\n";
+            char ch = getch();
+            if(ch=='1') showResult();
+            if(ch=='2') return;
+        }
     }
+}
 
 
 void ElectionManager::listCandidates(){
@@ -571,13 +577,11 @@ void ElectionManager::createVoterList()
 void ElectionManager::listVoters()
 {
     int i;
+    ifstream fin;
     char name[50];
     cout<<"Select the constituancy to view the voter list for. Enter 0 to return to the main menu.\n";
-
-    int voterSelection=-1;
-    while(voterSelection==-1||voterSelection!=0)
+    while(1)
     {
-        system("cls");
         for(i=0;i<constituancyCount;i++)
         {
             cout<<i+1<<". "<<constituancies[i]->cn<<endl;
@@ -599,27 +603,23 @@ void ElectionManager::listVoters()
         {
             if(strcmpi(voterList[i]->constituancy, constituancies[choice-1]->cn)==0)
             {
-                j++;
+                ++j;
                 cout<<j<<". "<<voterList[i]->name<<endl;
             }
         }
         cout<<"Enter the name of a voter to view information.\n";
         cin.ignore();
         cin.getline(name,50);
-        if(voterSelection!=0||voterSelection!=-1)
+        for(i=0;i<voterCount;i++)
         {
-            for(i=0;i<voterCount;i++)
+            if(strcmpi(voterList[i]->name, name)==0 && strcmpi(voterList[i]->constituancy, constituancies[choice-1]->cn)==0)
             {
-                if(strcmpi(voterList[i]->name, name)==0 && strcmpi(voterList[i]->constituancy, constituancies[choice-1]->cn)==0)
-                {
-                    cout<<"Name:\t"<<voterList[i]->name<<endl;
-                    cout<<"Address:\t"<<voterList[i]->address<<endl;
-                    cout<<"Age:\t"<<voterList[i]->age;
-                    cout<<"Voter Id:\t"<<voterList[i]->voterId<<endl;
-                    cout<<"Constituancy:\t"<<voterList[i]->constituancy;
-                    break;
-                }
-
+                cout<<"Name:\t"<<voterList[i]->name<<endl;
+                cout<<"Address:\t"<<voterList[i]->address<<endl;
+                cout<<"Age:\t"<<voterList[i]->age;
+                cout<<"Voter Id:\t"<<voterList[i]->voterId<<endl;
+                cout<<"Constituancy:\t"<<voterList[i]->constituancy;
+                break;
             }
         }
         _getch();
@@ -634,7 +634,6 @@ void ElectionManager::listVoters()
             else
                 break;
         }
-
     }
 }
 
@@ -678,6 +677,7 @@ void ElectionManager::searchVoter()
     if(ch=='a')
     {
         cout<<"Enter name of the voter.\n";
+        cin.ignore();
         gets(name);
     }
     if(ch=='b')
@@ -719,43 +719,46 @@ void ElectionManager::lockElectionManager()
     char id[20], pass[20];
     cout<<"\n\n\t\tId:\t";
     cin>>id;
-    cout<<"\t\tpass:\t";
+    cout<<"\t\tPassword:\t";
     cin>>pass;
     for(int i=0;i<getUserCount();i++)
+    {
         if(users[i]->verifyLogin(id, pass))
         {
             cout<<"Election Manager Locked. Only voting can be performed now\n";
+            ofstream fout("LockElectionManager.lck",ios::binary|ios::out);
+            fout.close();
+            isLocked = true;
         }
-    ofstream fout("LockElectionManager.lck",ios::binary|ios::out);
-    fout.close();
-    isLocked = true;
+    }
 }
 
 void ElectionManager::vote()
 {
-    char name[50], age, voterId, constituancy[20];
-    cout<<"Name\t";
+    char name[50], age, voterId, cons[20];
+    cout<<"Name:\t";
+    cin.ignore();
     cin.getline(name,50);
     cout<<"Age:\t";
     cin>>age;
     cout<<"VoterId:\t";
     cin.ignore();
     cin>>voterId;
-    cout<<"Constituancy\n";
+    cout<<"Constituancy:\t";
     cin.ignore();
-    cin>>constituancy;
+    cin>>cons;
     char* candidateName[candidateCount];
     int j, k = 0;
     for(int i=0;i<voterCount;i++)
     {
-        if(strcmpi(name,voterList[i]->name)==0 && age==voterList[i]->age && voterId==voterList[i]->voterId && voterList[i]->hasVoted==false && constituancy==voterList[i]->constituancy)
+        if(strcmpi(name,voterList[i]->name)==0 && age==voterList[i]->age && voterId==voterList[i]->voterId && voterList[i]->hasVoted==false && cons==voterList[i]->constituancy)
         {
             for(j=0;j<candidateCount;j++)
             {
                 if(strcmpi(candidates[j]->getConstituencyName(),voterList[i]->constituancy)==0)
                 {
                     cout<<j+1<<". "<<candidates[j]->getId();
-                    candidateName[k]==candidates[j]->getId();
+                    candidateName[k]=candidates[j]->getId();
                     ++k;
                 }
             }
@@ -770,7 +773,64 @@ void ElectionManager::vote()
                     break;
                 }
             }
-            voterList[i]->hasVoted==true;
+            voterList[i]->hasVoted=true;
+            ++haveVoted;
+            break;
         }
+    }
+}
+
+void ElectionManager::showResult()
+{
+    int i,j = 0, k;
+    struct info
+    {
+        char name[20];
+        int votes;
+    };
+    for(i = 0;i<constituancyCount;i++)
+    {
+        info** tempCandidate = 0;
+        k = 0;
+        for(j = 0; j<candidateCount; j++)
+        {
+            if(strcmpi(candidates[j]->getConstituencyName(),constituancies[i]->cn))
+            {
+                tempCandidate = (info**) malloc(sizeof(info*));
+                strcpy(tempCandidate[k]->name,candidates[j]->getId());
+                tempCandidate[k]->votes = candidates[j]->getVotes();
+                tempCandidate = (info**) realloc(tempCandidate, ++k*sizeof(info*));
+            }
+        }
+        info* winner = tempCandidate[0];
+        for(j = 0;j<k;j++)
+        {
+            if(tempCandidate[j]->votes>winner->votes)
+            {
+                winner=tempCandidate[j];
+            }
+        }
+        cout<<"Winner from constituancy "<<constituancies[i]->cn<<" "<<winner->name<<" received "<<winner->votes<<" votes\n";
+        for(j = 0;j<k;j++);
+        {
+            free(tempCandidate[i]);
+        }
+    }
+}
+
+ElectionManager::~ElectionManager()
+{
+    int i;
+    for(i = 0;i<voterCount;i++)
+    {
+        free(voterList[i]);
+    }
+    for(i = 0; i<constituancyCount; i++)
+    {
+        free(constituancies[i]);
+    }
+    for(i = 0; i<candidateCount; i++)
+    {
+        free(candidates[i]);
     }
 }
