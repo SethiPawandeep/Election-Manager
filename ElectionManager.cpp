@@ -57,10 +57,14 @@ ElectionManager::ElectionManager()
     f.open(VOTER_LIST,ios::in|ios::binary);
     Voter* voter;
     voterCount=0;
-    while(f.read((char*)(voter=(Voter*) malloc(sizeof(Voter))),sizeof(Voter)))
+    while(f.read((char*)(voter = (Voter*) malloc(sizeof(Voter))),sizeof(Voter)))
     {
         this->voterList = (Voter**) realloc(voterList, (++this->voterCount) * sizeof(Voter*));
         this->voterList[voterCount-1] = voter;
+        if(this->voterList[voterCount-1]->hasVoted == true)
+        {
+            ++haveVoted;
+        }
     }
     free(voter);
     f.close();
@@ -336,7 +340,8 @@ int ElectionManager::loginPrompt()
 
 void ElectionManager::listConstituancy()
 {
-    for(int i=0;i<constituancyCount;i++){
+    for(int i=0;i<constituancyCount;i++)
+    {
         std::cout<<i+1<<". "<<this->constituancies[i]->cn<<std::endl;
     }
 }
@@ -770,13 +775,14 @@ void ElectionManager::vote()
             cout<<"Voting successful\n";
             voterList[i]->hasVoted=true;
             ++haveVoted;
-//            ofstream fout(VOTER_LIST,ios::out|ios::binary);
-//            int p = 0;
-//            while(p<voterCount)
-//            {
-//                fout.write((char*)&voterList[i],sizeof(Voter));
-//            }
-//            fout.close();
+            ofstream fout(VOTER_LIST,ios::out|ios::binary);
+            int p = 0;
+            while(p<voterCount)
+            {
+                fout.write((char*)&voterList[i],sizeof(Voter));
+                ++p;
+            }
+            fout.close();
             break;
         }
     }
