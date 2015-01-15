@@ -347,7 +347,7 @@ void ElectionManager::showMenu()
     while(1)
     {
         system("cls");
-        if(haveVoted<voterCount)
+        if(haveVoted<voterCount || !isLocked)
         {
             std::cout<<"1. Constituencies\n";
             if(k==1)
@@ -718,9 +718,10 @@ void ElectionManager::lockElectionManager()
     cout<<"Please enter your id to confirm.\n";
     char id[20], pass[20];
     cout<<"\n\n\t\tId:\t";
-    cin>>id;
+    cin.ignore();
+    cin.getline(id,20);
     cout<<"\t\tPassword:\t";
-    cin>>pass;
+    cin.getline(pass,20);
     for(int i=0;i<getUserCount();i++)
     {
         if(users[i]->verifyLogin(id, pass))
@@ -735,46 +736,47 @@ void ElectionManager::lockElectionManager()
 
 void ElectionManager::vote()
 {
-    char name[50], age, voterId, cons[20];
+    char name[50], cons[20],temp[100];
+    int age, voterId;
     cout<<"Name:\t";
-    cin.ignore();
     cin.getline(name,50);
     cout<<"Age:\t";
-    cin>>age;
+    cin.getline(temp,100);
+    age = atoi(temp);
     cout<<"VoterId:\t";
-    cin.ignore();
-    cin>>voterId;
+    cin.getline(temp,100);
+    voterId = atoi(temp);
     cout<<"Constituancy:\t";
-    cin.ignore();
-    cin>>cons;
-    char* candidateName[candidateCount];
+    cin.getline(cons,20);
+    int candidateId[candidateCount];
     int j, k = 0;
     for(int i=0;i<voterCount;i++)
     {
-        if(strcmpi(name,voterList[i]->name)==0 && age==voterList[i]->age && voterId==voterList[i]->voterId && voterList[i]->hasVoted==false && cons==voterList[i]->constituancy)
+        if(strcmpi(name,voterList[i]->name)==0 && age==voterList[i]->age && voterId==voterList[i]->voterId && voterList[i]->hasVoted==false && strcmpi(cons,voterList[i]->constituancy)==0)
         {
             for(j=0;j<candidateCount;j++)
             {
                 if(strcmpi(candidates[j]->getConstituencyName(),voterList[i]->constituancy)==0)
                 {
-                    cout<<j+1<<". "<<candidates[j]->getId();
-                    candidateName[k]=candidates[j]->getId();
+                    cout<<k+1<<". "<<candidates[j]->getId();
+                    candidateId[k] = j;
                     ++k;
                 }
             }
             cout<<"Select the candidate to vote for\n";
             cin>>k;
-            for(j=0;j<candidateCount;j++)
-            {
-                if(strcmpi(candidateName[k-1],candidates[i]->getId())==0)
-                {
-                    candidates[i]->vote();
-                    cout<<"Voting successful\n";
-                    break;
-                }
-            }
+            cin.ignore();
+            candidates[candidateId[k-1]]->vote();
+            cout<<"Voting successful\n";
             voterList[i]->hasVoted=true;
             ++haveVoted;
+//            ofstream fout(VOTER_LIST,ios::out|ios::binary);
+//            int p = 0;
+//            while(p<voterCount)
+//            {
+//                fout.write((char*)&voterList[i],sizeof(Voter));
+//            }
+//            fout.close();
             break;
         }
     }
@@ -783,39 +785,38 @@ void ElectionManager::vote()
 void ElectionManager::showResult()
 {
     int i,j = 0, k;
-    struct info
-    {
-        char name[20];
-        int votes;
-    };
+    int candidateVotes[candidateCount], candidateId[candidateCount];
     for(i = 0;i<constituancyCount;i++)
     {
-        info** tempCandidate = 0;
         k = 0;
         for(j = 0; j<candidateCount; j++)
         {
-            if(strcmpi(candidates[j]->getConstituencyName(),constituancies[i]->cn))
+            if(strcmpi(candidates[j]->getConstituencyName(),constituancies[i]->cn) == 0)
             {
-                tempCandidate = (info**) malloc(sizeof(info*));
-                strcpy(tempCandidate[k]->name,candidates[j]->getId());
-                tempCandidate[k]->votes = candidates[j]->getVotes();
-                tempCandidate = (info**) realloc(tempCandidate, ++k*sizeof(info*));
+                candidateVotes[k] = candidates[j]->getVotes();
+                candidateId[k] = j;
+                ++k;
             }
         }
-        info* winner = tempCandidate[0];
-        for(j = 0;j<k;j++)
+        if(k>0)
         {
-            if(tempCandidate[j]->votes>winner->votes)
+            int mostVotes = candidateVotes[0], mostVoted = candidateId[0];
+            for(j = 1;j<k;j++)
             {
-                winner=tempCandidate[j];
+                if(candidateVotes[j]>mostVotes)
+                {
+                    mostVotes = candidateVotes[j];
+                    mostVoted = candidateId[j];
+                }
             }
+            cout<<"Winner from constituancy "<<constituancies[i]->cn<<" "<<candidates[mostVoted]->getId()<<" received "<<mostVotes<<" votes\n";
         }
-        cout<<"Winner from constituancy "<<constituancies[i]->cn<<" "<<winner->name<<" received "<<winner->votes<<" votes\n";
-        for(j = 0;j<k;j++);
+        else
         {
-            free(tempCandidate[i]);
+            cout<<"No candidates in the constituency "<<constituancies[i]->cn<<endl;
         }
     }
+    getch();
 }
 
 ElectionManager::~ElectionManager()
