@@ -775,14 +775,7 @@ void ElectionManager::vote()
             cout<<"Voting successful\n";
             voterList[i]->hasVoted=true;
             ++haveVoted;
-            ofstream fout(VOTER_LIST,ios::out|ios::binary);
-            int p = 0;
-            while(p<voterCount)
-            {
-                fout.write((char*)&voterList[i],sizeof(Voter));
-                ++p;
-            }
-            fout.close();
+
             break;
         }
     }
@@ -827,7 +820,22 @@ void ElectionManager::showResult()
 
 ElectionManager::~ElectionManager()
 {
-    int i;
+    ofstream fout(CANDIDATE_LIST,std::ios::binary|std::ios::app);
+    int i = 0;
+    while(i<candidateCount)
+    {
+        fout.write((char*)candidates[i],sizeof(Candidate));
+        ++i;
+    }
+    i = 0;
+    fout.close();
+    fout.open(VOTER_LIST,ios::out|ios::binary);
+    while(i<voterCount)
+    {
+        fout.write((char*)&voterList[i],sizeof(Voter));
+        ++i;
+    }
+    fout.close();
     for(i = 0;i<voterCount;i++)
     {
         free(voterList[i]);
