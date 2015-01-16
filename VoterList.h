@@ -7,7 +7,8 @@ using namespace std;
 struct Voter
 {
     char name[50], constituancy[20], address[100];
-    int age, voterId;
+    int age;
+    char voterId[5];
     bool hasVoted = false;
 };
 

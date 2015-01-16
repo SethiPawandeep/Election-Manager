@@ -12,7 +12,7 @@ User::User(char* id, char* password, bool isAdmin){
 }
 
 bool User::verifyLogin(char* const id, char* const pass){
-    if(strcmp(this->id, id)==0 && strcmp(this->pass, pass)==0){
+    if(strcmpi(this->id, id)==0 && strcmp(this->pass, pass)==0){
         return 1;
     }
     return 0;

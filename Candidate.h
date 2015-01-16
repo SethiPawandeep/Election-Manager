@@ -6,8 +6,8 @@
 class Candidate
 {
     private:
-        char constituency[20],address[100],id[50];//constituency name, name,address of candi.
-        int age, votes=0;	//age of candidate
+        char constituency[20],address[100],id[50];
+        int age, votes = 0;
     public:
         Candidate(char*, char*, char*, int, int);
         inline char* getConstituencyName()
