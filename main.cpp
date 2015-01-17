@@ -15,6 +15,4 @@ int main()
     system("cls");
     system("color a");
     em.showMenu();
-
-
 }

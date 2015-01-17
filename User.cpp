@@ -2,7 +2,8 @@
 #include <cstring>
 #include <fstream>
 
-User::User(char* id, char* password, bool isAdmin){
+User::User(char* id, char* password, bool isAdmin)
+{
     strcpy(this->id, id);
     strcpy(this->pass, password);
     if(isAdmin)
@@ -11,8 +12,10 @@ User::User(char* id, char* password, bool isAdmin){
         this->isAdmin = false;
 }
 
-bool User::verifyLogin(char* const id, char* const pass){
-    if(strcmpi(this->id, id)==0 && strcmp(this->pass, pass)==0){
+bool User::verifyLogin(char* const id, char* const pass)
+{
+    if(strcmpi(this->id, id)==0 && strcmp(this->pass, pass)==0)
+    {
         return 1;
     }
     return 0;

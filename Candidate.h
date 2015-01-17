@@ -34,7 +34,6 @@ class Candidate
         {
             return votes;
         }
-
 };
 
 #endif // CANDIDATE_H

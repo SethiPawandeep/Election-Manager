@@ -8,7 +8,8 @@ class User
         char isAdmin;
     public:
         User(char*, char*, bool);
-        char getIsAdmin(){
+        char getIsAdmin()
+        {
             return isAdmin;
         }
         char* const getId()
