@@ -182,11 +182,12 @@ void ElectionManager::createUser(bool isFirstUser = false)
 
     char pass[20], confirm[20], id[20];
     int k = -1, i;
-    char* ptr;
+
+    cout<<"Id:\t\t\t\t\t(max. 20 characters\n\t\t";
+    cin.getline(id,20);
+
     while(1)
     {
-        cout<<"Id:\t\t\t\t\t(max. 20 characters\n\t\t";
-        cin.getline(id,20);
         do
         {
             ++k;
@@ -195,17 +196,28 @@ void ElectionManager::createUser(bool isFirstUser = false)
                 cout<<"Incorrect password length\n";
             }
             cout<<"Password:\t\t\t\t\t\t(min. 6 char, max 20)\n\t\t";
-//            for(i = 0; pass[i]!='\0'; i++)
-//            {
-//                pass[i] = getch();
-//                cout<<pass[i];
-//                cout<<ptr<<*ptr<<*ptr++;
-//            }
-           cin.getline(pass,20);
+            for(i = 0; i<20; i++)
+            {
+                pass[i] = getch();
+                cout<<"*";
+                if(pass[i]=='\r')
+                {
+                    pass[i] = '\0';
+                    break;
+                }
+            }
         }while(strlen(pass) < 6);
-        cout<<"Re-enter password:\t\t\t\t\n\t\t";
-        cin.getline(confirm,20);
-        if(strcmp(confirm,pass)!=0)
+        cout<<"\nRe-enter password:\t\t\t\t\n\t\t";
+        for(i = 0; i<20; i++)
+        {
+            pass[i] = getch();
+            cout<<"*";
+            if(pass[i]=='\r')
+            {
+                pass[i] = '\0';
+                break;
+            }
+        }        if(strcmp(confirm,pass)!=0)
         {
             cout<<"Password do not match. Re-enter password\n";
             continue;
@@ -369,15 +381,24 @@ void ElectionManager::createConstituancy()
 
 int ElectionManager::loginPrompt()
 {
-    char id1[20],pass1[20];
+    char id[20],pass[20];
     cout<<"Id:\t\t";
-    cin.getline(id1,20);
+    cin.getline(id,20);
     cout<<"Password:\t";
-    cin.getline(pass1,20);
-
+    for(int i = 0; i<20; i++)
+    {
+        pass[i] = getch();
+        cout<<"*";
+        if(pass[i]=='\r')
+        {
+            pass[i] = '\0';
+            break;
+        }
+    }
     for(int i=0; i<userCount; i++)
     {
-        if(users[i]->verifyLogin(id1, pass1)){
+        if(users[i]->verifyLogin(id, pass))
+        {
             cout << "Access Granted!"<<endl;
             loggedIn=users[i];
             return 1;
