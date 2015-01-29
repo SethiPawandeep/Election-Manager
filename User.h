@@ -8,16 +8,17 @@ class User
         char isAdmin;
     public:
         User(char*, char*, bool);
-        char getIsAdmin()
+        inline char getIsAdmin()
         {
             return isAdmin;
         }
-        char* const getId()
+        inline char* const getId()
         {
             return id;
         }
 
         bool verifyLogin(char* const id, char* const pass);
+//        void changePassword();
 };
 
 #endif // ADMIN_H

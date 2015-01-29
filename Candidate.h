@@ -28,7 +28,7 @@ class Candidate
         }
         inline void vote()
         {
-            votes++;
+            ++votes;
         }
         inline int getVotes()
         {
