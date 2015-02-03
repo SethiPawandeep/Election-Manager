@@ -180,7 +180,7 @@ void ElectionManager::createUser(bool isFirstUser = false)
         getch();
     }
 
-    char pass[20], confirm[20], id[20];
+    char pass[20], confirm[20], id[20], ch;
     int k = -1, i;
 
     cout<<"Id:\t\t\t\t\t(max. 20 characters\n\t\t";
@@ -195,29 +195,47 @@ void ElectionManager::createUser(bool isFirstUser = false)
             {
                 cout<<"Incorrect password length\n";
             }
-            cout<<"Password:\t\t\t\t\t\t(min. 6 char, max 20)\n\t\t";
-            for(i = 0; i<20; i++)
+            i = 0;
+            system("cls");
+            cout<<"Password:\t\t\t\t\t(min. 6, max 20 char.)\n";
+            while(pass[i]!=13)
             {
-                pass[i] = getch();
-                cout<<"*";
-                if(pass[i]=='\r')
+                ch = getch();
+                if(ch == '\b')
                 {
-                    pass[i] = '\0';
-                    break;
+                    i = i - 2;
+                    gotoxy(17 + i, 2);
+                    clreol();
                 }
+                else
+                {
+                    pass[i] = ch;
+                    cout<<"*";
+                }
+                ++i;
             }
+            pass[i]='\0';
         }while(strlen(pass) < 6);
         cout<<"\nRe-enter password:\t\t\t\t\n\t\t";
-        for(i = 0; i<20; i++)
+        i = 0;
+        while(pass[i]!=13)
         {
-            pass[i] = getch();
-            cout<<"*";
-            if(pass[i]=='\r')
+            ch = getch();
+            if(ch == '\b')
             {
-                pass[i] = '\0';
-                break;
+                i = i - 2;
+                gotoxy(17 + i, 4);
+                clreol();
             }
-        }        if(strcmp(confirm,pass)!=0)
+            else
+            {
+                pass[i] = ch;
+                cout<<"*";
+            }
+            ++i;
+        }
+        pass[i]='\0';
+        if(strcmp(confirm,pass)!=0)
         {
             cout<<"Password do not match. Re-enter password\n";
             continue;
@@ -381,21 +399,32 @@ void ElectionManager::createConstituancy()
 
 int ElectionManager::loginPrompt()
 {
-    char id[20],pass[20];
+    system("cls");
+    char id[20], pass[20], ch;
     cout<<"Id:\t\t";
     cin.getline(id,20);
     cout<<"Password:\t";
-    for(int i = 0; i<20; i++)
+    int i = 0;
+
+    while(pass[i]!=13)
     {
-        pass[i] = getch();
-        cout<<"*";
-        if(pass[i]=='\r')
+        ch = getch();
+        if(ch == '\b')
         {
-            pass[i] = '\0';
-            break;
+            i = i - 2;
+            gotoxy(17 + i, 2);
+            clreol();
         }
+        else
+        {
+            pass[i] = ch;
+            cout<<"*";
+        }
+        ++i;
     }
-    for(int i=0; i<userCount; i++)
+    pass[i]='\0';
+
+    for(i=0; i<userCount; i++)
     {
         if(users[i]->verifyLogin(id, pass))
         {
