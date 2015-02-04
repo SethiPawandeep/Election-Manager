@@ -18,7 +18,6 @@ class User
         }
 
         bool verifyLogin(char* const id, char* const pass);
-//        void changePassword();
 };
 
 #endif // ADMIN_H
