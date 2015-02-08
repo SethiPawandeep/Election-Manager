@@ -13,6 +13,5 @@ int main()
         while(em.loginPrompt() != 1);
     }
     system("cls");
-    system("color a");
     em.showMenu();
 }

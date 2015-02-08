@@ -100,14 +100,19 @@ void password(char s[20])
     while(s[i]!=13)
     {
         ch = getch();
+        if(ch == 13)
+        {
+            ++i;
+            break;
+        }
         if(ch == '\b')
         {
+            i = i - 2;
             system("cls");
-            for(j = 0; j < strlen(s) - 1; j++)
+            for(j = 0; j < i; j++)
             {
                 cout<<"*";
             }
-            i = i - 2;
         }
         else
         {
@@ -220,10 +225,9 @@ void ElectionManager::createUser(bool isFirstUser = false)
     cout<<"Id:\t\t\t\t\t(max. 20 characters\n\t\t";
     cin.getline(id,20);
 
-    cout<<"Password:\t\t\t\t\t(min. 6, max 20 char.)\n";
-
     while(1)
     {
+        cout<<"Password:\t\t\t\t\t(min. 6, max 20 char.)\n";
         do
         {
             ++k;
@@ -233,6 +237,7 @@ void ElectionManager::createUser(bool isFirstUser = false)
             }
             password(pass);
         }while(strlen(pass) < 6);
+        k = -1;
         cout<<"\nRe-enter password:\t\t\t\t\n\t\t";
         password(confirm);
         if(strcmp(confirm,pass)!=0)
@@ -263,7 +268,7 @@ void ElectionManager::deleteConstituancy()
         }
         cin.getline(tmp,10);
         choice = atoi(tmp);
-        if(choice<0||choice>getConstituancyCount())
+        if(choice<=0||choice>getConstituancyCount())
         {
             cout<<"Invalid Selection\n";
             continue;
@@ -834,7 +839,7 @@ void ElectionManager::lockElectionManager()
     cout<<"\n\n\t\tId:\t";
     cin.getline(id,20);
     cout<<"\t\tPassword:\t";
-    cin.getline(pass,20);
+    password(pass);
     for(int i = 0; i < getUserCount(); i++)
     {
         if(users[i]->verifyLogin(id, pass))
